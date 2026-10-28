@@ -85,6 +85,9 @@
   console.log(Prng.seed);
 </script>
 
+<script src="hands-data.js"></script>
+<script src="hands.js"></script>
+
 <script id="PerlinNoise">
   //https://raw.githubusercontent.com/processing/p5.js/master/src/math/noise.js
   var Noise = new function() {
@@ -535,6 +538,9 @@
     vtxlist1 = [];
     vtxlist = [];
     var n0 = Math.random() * 10;
+    if (Hands.on) {
+      return Hands.stroke(ptlist, args);
+    }
     for (var i = 1; i < ptlist.length - 1; i++) {
       var w = wid * fun(i / ptlist.length);
       w = w * (1 - noi) + w * noi * Noise.noise(i * 0.5, n0);
@@ -618,6 +624,9 @@
     }
 
     if (ret == 0) {
+      if (Hands.on) {
+        col = Hands.blobFill(col);
+      }
       return poly(plist, { fil: col, str: col, wid: 0 });
     } else {
       return plist;
@@ -717,6 +726,7 @@
       }
     }
     var canv = "";
+    var wasRole = Hands.setRole("shade");
     //SHADE
     if (sha) {
       for (var j = 0; j < texlist.length; j += 1 + (sha != 0)) {
@@ -729,6 +739,7 @@
       }
     }
     //TEXTURE
+    Hands.setRole("tex");
     for (var j = 0 + sha; j < texlist.length; j += 1 + sha) {
       canv += stroke(
         texlist[j].map(function(x) {
@@ -736,6 +747,10 @@
         }),
         { col: col(j / texlist.length), wid: wid },
       );
+    }
+    Hands.setRole(wasRole);
+    if (Hands.on && !ret) {
+      canv = Hands.washes(texlist, xof, yof) + canv;
     }
     return ret ? texlist : canv;
   };
@@ -4126,7 +4141,10 @@
   }
   function reloadWSeed(s) {
     var u = window.location.href.split("?")[0];
-    window.location.href = u + "?seed=" + s;
+    var h = document.getElementById("INP_HAND")
+      ? document.getElementById("INP_HAND").value
+      : Hands.key || "";
+    window.location.href = u + "?seed=" + s + (h ? "&hand=" + h : "");
     //window.location.reload(true)
   }
   var btnHoverCol = "rgba(0,0,0,0.1)";
@@ -4191,6 +4209,42 @@
             >
               Generate
             </button>
+          </td>
+        </tr>
+        <tr>
+          <td><pre>HAND</pre></td>
+        </tr>
+        <tr>
+          <td>
+            <select
+              title="draw the scroll in a learned brush hand"
+              id="INP_HAND"
+              onchange="reloadWSeed(document.getElementById('INP_SEED').value)"
+            ></select>
+            <div id="HAND_CREDIT" style="max-width:260px;font:11px monospace;color:rgba(0,0,0,0.55)"></div>
+            <script>
+              (function() {
+                var sel = document.getElementById("INP_HAND");
+                var opts = "<option value=''>Original brush</option>";
+                ["Brush", "Pen"].forEach(function(g) {
+                  opts += "<optgroup label='" + g + "'>";
+                  for (var k in Hands.list) {
+                    if (Hands.list[k].group != g) continue;
+                    opts +=
+                      "<option value='" + k + "'" + (k == Hands.key ? " selected" : "") + ">" +
+                      Hands.list[k].name + "</option>";
+                  }
+                  opts += "</optgroup>";
+                });
+                sel.innerHTML = opts;
+                if (Hands.on) {
+                  var h = Hands.hand;
+                  document.getElementById("HAND_CREDIT").innerHTML =
+                    h.marks.length + " marks learned from " + h.sources + " works by " + h.artist +
+                    " (" + h.museums.join("; ") + "; " + h.licenses.join(", ") + ")";
+                }
+              })();
+            </script>
           </td>
         </tr>
         <tr>
@@ -4344,9 +4398,10 @@
       var c = 245 + Noise.noise(i * 0.1, j * 0.1) * 10;
       c -= Math.random() * 20;
 
-      var r = c.toFixed(0);
-      var g = (c * 0.95).toFixed(0);
-      var b = (c * 0.85).toFixed(0);
+      var pc = Hands.paper(c, c * 0.95, c * 0.85);
+      var r = pc[0].toFixed(0);
+      var g = pc[1].toFixed(0);
+      var b = pc[2].toFixed(0);
       ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
       ctx.fillRect(i, j, 1, 1);
       ctx.fillRect(reso - i, j, 1, 1);
