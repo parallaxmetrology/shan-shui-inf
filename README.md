@@ -25,7 +25,7 @@ With no hand chosen, the output is byte-for-byte the original's.
 
 A hand is a small vocabulary of marks (length, width, taper, pressure, dryness, hatching, zigzag, dots, wash),
 each with how often the artist used it. The vocabularies were learned from those works by the Hands engine
-(Parallax Metrology, built on *know between* after Russell Foltz-Smith). Every source is public domain or CC0.
+(Parallax Metrology). Every source is public domain or CC0.
 
 ## Use
 
