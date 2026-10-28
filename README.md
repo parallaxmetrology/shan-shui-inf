@@ -4,6 +4,8 @@ A fork of Lingdong Huang's [{Shan, Shui}*](https://github.com/LingDong-/shan-shu
 procedural Chinese landscape. This fork adds one thing: the scroll can be drawn in a **learned hand**, the marks
 of a particular artist, in place of the single built-in brush.
 
+For live version: [Website link](https://parallaxmetrology.com/shan-shui/)  
+
 The landscape itself is untouched. Same seed, same mountains, trees, huts and boats; only the hand changes.
 With no hand chosen, the output is byte-for-byte the original's.
 
